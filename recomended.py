@@ -1,6 +1,7 @@
 import sys
 import json
 import numpy as np
+import numpy as np
 import pickle
 import os
 from diseaseData_Find import helper
@@ -50,4 +51,24 @@ response = {
     "diets": die
 }
 # Return response
-print(json.dumps(response))
+
+def serialize(obj):
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()  # Convert ndarray to list
+    elif isinstance(obj, pd.Series):
+        return obj.tolist()  # Convert Series to list
+    elif isinstance(obj, pd.DataFrame):
+        return obj.to_dict(orient="records")  # Convert DataFrame to list of dictionaries
+    elif isinstance(obj, set):
+        return list(obj)  # Convert set to list
+    elif isinstance(obj, dict):
+        return {key: serialize(value) for key, value in obj.items()}  # Recursively serialize dict
+    elif isinstance(obj, list):
+        return [serialize(value) for value in obj]  # Recursively serialize list
+    return obj  # Default case (numbers, strings, etc.)
+
+response = serialize(response)  # Convert response to JSON serializable format
+print(json.dumps(response))  # Now it's safe to convert to JSON
+
+
+
